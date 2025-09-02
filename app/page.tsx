@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ExternalLink, Home, User, Mail, Settings, Ruler, ChevronDown, Globe } from "lucide-react"
@@ -8,6 +8,8 @@ import { ExternalLink, Home, User, Mail, Settings, Ruler, ChevronDown, Globe } f
 export default function LinkPlatform() {
   const [showDomainDropdown, setShowDomainDropdown] = useState(false)
   const [showDimensionDropdown, setShowDimensionDropdown] = useState(false)
+  const domainTimeout = useRef<NodeJS.Timeout | null>(null)
+  const dimensionTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const domainCountries = [
     { name: "Malaysia", url: "https://tnctech.com.my" },
@@ -55,12 +57,22 @@ export default function LinkPlatform() {
         <Card className="p-6 space-y-4">
           {links.map((link, index) =>
             link.dropdown === "domain" ? (
-              <div key={index} className="relative">
+              <div
+                key={index}
+                className="relative"
+                onMouseEnter={() => {
+                  if (domainTimeout.current) clearTimeout(domainTimeout.current)
+                  setShowDomainDropdown(true)
+                }}
+                onMouseLeave={() => {
+                  domainTimeout.current = setTimeout(() => setShowDomainDropdown(false), 100)
+                }}
+              >
                 <Button
                   variant="outline"
                   size="lg"
                   className="w-full h-auto p-4 justify-start gap-4 hover:bg-accent hover:text-accent-foreground transition-colors group bg-transparent flex items-center"
-                  onClick={() => setShowDomainDropdown((prev) => !prev)}
+                  tabIndex={-1}
                 >
                   <div className="text-accent group-hover:text-accent-foreground">{link.icon}</div>
                   <div className="flex-1 text-left">
@@ -90,12 +102,22 @@ export default function LinkPlatform() {
                 )}
               </div>
             ) : link.dropdown === "dimension" ? (
-              <div key={index} className="relative">
+              <div
+                key={index}
+                className="relative"
+                onMouseEnter={() => {
+                  if (dimensionTimeout.current) clearTimeout(dimensionTimeout.current)
+                  setShowDimensionDropdown(true)
+                }}
+                onMouseLeave={() => {
+                  dimensionTimeout.current = setTimeout(() => setShowDimensionDropdown(false), 100)
+                }}
+              >
                 <Button
                   variant="outline"
                   size="lg"
                   className="w-full h-auto p-4 justify-start gap-4 hover:bg-accent hover:text-accent-foreground transition-colors group bg-transparent flex items-center"
-                  onClick={() => setShowDimensionDropdown((prev) => !prev)}
+                  tabIndex={-1}
                 >
                   <div className="text-accent group-hover:text-accent-foreground">{link.icon}</div>
                   <div className="flex-1 text-left">
@@ -115,7 +137,6 @@ export default function LinkPlatform() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block px-4 py-2 hover:bg-accent hover:text-accent-foreground flex items-center gap-2"
-                        onClick={() => setShowDimensionDropdown(false)}
                       >
                         <span>{version.name}</span>
                         <ExternalLink className="w-4 h-4 ml-auto" />
